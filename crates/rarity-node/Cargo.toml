@@ -1,0 +1,12 @@
+[package]
+name = "rarity-node"
+version = "0.0.1"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rarity-engine = { path = "../rarity-engine", version = "0.0.1" }
+
+[dev-dependencies]
+wav = "1.0.0"

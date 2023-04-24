@@ -1,0 +1,15 @@
+[package]
+name = "rarity"
+version = "0.0.1"
+edition = "2021"
+
+[workspace]
+members = ["crates/rarity-engine", "crates/rarity-node"]
+
+[dependencies]
+rarity-engine = { path = "crates/rarity-engine", version = "0.0.1" }
+rarity-node = { path = "crates/rarity-node", version = "0.0.1" }
+
+[dev-dependencies]
+cpal = "0.15.0"
+rosc = "~0.8"
