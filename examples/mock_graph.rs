@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 use std::{
     net::{SocketAddrV4, UdpSocket},
     str::FromStr,
@@ -8,15 +9,14 @@ use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     Device, FromSample, SampleFormat, SizedSample, Stream, StreamConfig,
 };
-use rarity_engine::A_OUT_NODE;
 use rosc::{OscPacket, OscType};
 
 use rarity::{
     engine::{
         AudioBuffer, FloatMessage, Graph, Message, MessageCollector, MessageValue, MidiMessage,
-        NoteOn, PlayHead,
+        NoteOn, PlayHead, A_OUT_NODE,
     },
-    node::{DigitalOverDrive, SimpleSaw},
+    node::{DigitalOverDrive, SimpleSaw, WaveFold},
 };
 
 fn run<T: SizedSample + FromSample<f32>>(
@@ -67,7 +67,7 @@ fn run<T: SizedSample + FromSample<f32>>(
 fn main() {
     let mut graph = Graph::new("mock");
     graph.add_audio_source(SimpleSaw::new("simple_saw", 3));
-    graph.add_audio_effect(DigitalOverDrive::new("overdrive"));
+    graph.add_audio_effect(WaveFold::new("overdrive"));
     graph.add_audio_link("simple_saw", "overdrive");
     graph.add_audio_link("overdrive", A_OUT_NODE);
     let mut collector = MessageCollector::new();
@@ -94,7 +94,7 @@ fn main() {
     };
     stream.play().unwrap();
 
-    let addr = SocketAddrV4::from_str("169.254.237.244:7001").unwrap();
+    let addr = SocketAddrV4::from_str("169.254.58.209:7001").unwrap();
     let sock = UdpSocket::bind(addr).unwrap();
     let mut buf = [0u8; rosc::decoder::MTU];
     let start_time = Instant::now();

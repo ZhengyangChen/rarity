@@ -1,4 +1,4 @@
-// use std::f64::consts::PI;
+use std::f64::consts::PI;
 
 use rarity_engine::{
     AudioBufferMut, AudioSourceDesc, AudioSourceNode, FloatRange, Message, MessageBuffer,
@@ -19,13 +19,13 @@ impl SimpleSaw {
     pub fn new(name: &str, max_voice: usize) -> Self {
         Self {
             name: name.to_string(),
-            voices: (0..max_voice).into_iter().map(|_| Voice::new()).collect(),
+            voices: (0..max_voice).map(|_| Voice::new()).collect(),
             sf: 48000.0,
             voice_counter: 0,
         }
     }
 
-    fn prepare(&mut self, sample_rate: f64) -> AudioSourceDesc {
+    pub fn prepare(&mut self, sample_rate: f64) -> AudioSourceDesc {
         self.sf = sample_rate;
         for v in self.voices.iter_mut() {
             v.set_sample_rate(sample_rate);
@@ -81,7 +81,12 @@ impl SimpleSaw {
         }
     }
 
-    fn process(&mut self, frames: usize, audio_out: AudioBufferMut, message_in: &MessageBuffer) {
+    pub fn process(
+        &mut self,
+        frames: usize,
+        audio_out: AudioBufferMut,
+        message_in: &MessageBuffer,
+    ) {
         let mut curr_frame = 0;
         let mut remain = audio_out;
         for (f, msg) in message_in {
@@ -103,7 +108,7 @@ impl SimpleSaw {
         }
     }
 
-    fn set_state(&mut self, message: &Message) {
+    pub fn set_state(&mut self, message: &Message) {
         if !message.addr.is_empty() {
             return;
         }
@@ -135,37 +140,37 @@ impl SimpleSaw {
         }
     }
 
-    fn set_volume(&mut self, value: f64) {
+    pub fn set_volume(&mut self, value: f64) {
         for voice in self.voices.iter_mut() {
             voice.set_volume(value);
         }
     }
 
-    fn set_a(&mut self, value: f64) {
+    pub fn set_a(&mut self, value: f64) {
         for voice in self.voices.iter_mut() {
             voice.set_a(value);
         }
     }
 
-    fn set_d(&mut self, value: f64) {
+    pub fn set_d(&mut self, value: f64) {
         for voice in self.voices.iter_mut() {
             voice.set_d(value);
         }
     }
 
-    fn set_s(&mut self, value: f64) {
+    pub fn set_s(&mut self, value: f64) {
         for voice in self.voices.iter_mut() {
             voice.set_s(value);
         }
     }
 
-    fn set_r(&mut self, value: f64) {
+    pub fn set_r(&mut self, value: f64) {
         for voice in self.voices.iter_mut() {
             voice.set_r(value);
         }
     }
 
-    fn set_note_off(&mut self, pitch: u8) {
+    pub fn set_note_off(&mut self, pitch: u8) {
         for voice in self.voices.iter_mut() {
             if voice.pitch == pitch {
                 voice.set_note_off();
@@ -173,7 +178,7 @@ impl SimpleSaw {
         }
     }
 
-    fn set_note_on(&mut self, pitch: u8, velocity: u8) {
+    pub fn set_note_on(&mut self, pitch: u8, velocity: u8) {
         if velocity == 0 {
             self.set_note_off(pitch);
         } else {
@@ -183,7 +188,7 @@ impl SimpleSaw {
         }
     }
 
-    fn forward(&mut self, mut output: AudioBufferMut) {
+    pub fn forward(&mut self, mut output: AudioBufferMut) {
         for voice in self.voices.iter_mut() {
             output = voice.forward(output);
         }
@@ -355,7 +360,7 @@ impl SawOSC {
             pitch,
             sr: sample_rate,
             pos: 0.0,
-            volume: 0.2,
+            volume: 1.0,
             velocity_volume: 0.0,
             step: 440.0 * 2_f64.powf((pitch as f64 - 81.0) / 12.0) / sample_rate,
             last_output: 0.0,
@@ -382,8 +387,8 @@ impl Iterator for SawOSC {
     type Item = f64;
 
     fn next(&mut self) -> Option<Self::Item> {
-        // let res = (self.pos * PI * 2.0).sin();
-        let res = self.pos * 2.0 - 1.0;
+        let res = (self.pos * PI * 2.0).sin();
+        // let res = self.pos * 2.0 - 1.0;
         // let res = (-3..=3)
         //     .map(|i| (self.pos + i as f64 * self.step).clamp(0.0, 1.0) * 2.0 - 1.0)
         //     .fold(0.0, |acc, x| acc + x)
